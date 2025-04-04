@@ -10,4 +10,4 @@ RUN pip3 install numpy
 WORKDIR /app
 COPY vio_node.py /app/
 
-ENTRYPOINT ["rosrun", "rospy", "vio_node.py"]
+ENTRYPOINT ["rosrun", "rospy", "vio.py"]
