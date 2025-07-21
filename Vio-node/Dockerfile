@@ -12,9 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add ROS Noetic repository
-RUN curl -sSL http://repo.ros2.org/repos.yaml | tee /etc/apt/sources.list.d/ros-latest.list
-RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
-
+RUN echo "deb http://packages.ros.org/ros/ubuntu bionic main" > /etc/apt/sources.list.d/ros-latest.list && \
+    apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 # Update apt sources and install ROS dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-rospy ros-noetic-cv-bridge ros-noetic-message-filters \
