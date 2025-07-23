@@ -1,23 +1,26 @@
-FROM ros:noetic
 
-# Install system dependencies
+FROM dustynv/ros:melodic-ros-base-l4t-r32.7.1
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install ROS tools and Python3
 RUN apt-get update && apt-get install -y \
+    ros-melodic-sensor-msgs \
+    ros-melodic-rospy \
+    ros-melodic-cv-bridge \
     python3-pip \
-    ros-noetic-cv-bridge \
-    ros-noetic-sensor-msgs \
-    ros-noetic-rospy \
     python3-opencv \
-    && apt-get clean
+    libgl1-mesa-glx \
+    librealsense2-utils \
+    librealsense2-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python libraries
-RUN pip3 install numpy
+# Install pyrealsense2 via pip
+RUN pip3 install pyrealsense2
 
-# Create working directory and copy script
-WORKDIR /app
-COPY pointcloud.py /app/pointcloud.py
+# Create a workspace directory
+WORKDIR /workspace
+COPY . /workspace
 
-# Set environment
-ENV PYTHONUNBUFFERED=1
-
-# Default command
-CMD ["rosrun", "rospy", "pointcloud.py"]
+# Set default command to run your script
+CMD ["python3", "your_script.py"]
