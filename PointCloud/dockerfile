@@ -23,4 +23,4 @@ WORKDIR /workspace
 COPY . /workspace
 
 # Set default command to run your script
-CMD ["python3", "your_script.py"]
+CMD ["python3", "pointcloud.py"]
