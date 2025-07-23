@@ -1,5 +1,5 @@
 # Minimal ROS Noetic Base (ARM64, ohne GUI)
-FROM arm64v8/ros:noetic-ros-base
+FROM ros:humble-ros-base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
