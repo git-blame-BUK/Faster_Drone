@@ -1,29 +1,28 @@
-# Minimal ROS Noetic Base (ARM64, ohne GUI)
-FROM ros:humble-ros-base
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ---------- base ------------------------------------------------------------
+FROM nvcr.io/nvidia/l4t-ros:r36.2.0-humble-desktop   # JetPack 6 – includes ROS 2 Humble +
+                                                     # CUDA + rclpy
 
-# Installiere ROS-Abhängigkeiten und Python-Bibliotheken
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-pip python3-numpy python3-opencv \
-    ros-noetic-rospy \
-    ros-noetic-cv-bridge \
-    ros-noetic-message-filters \
-    ros-noetic-sensor-msgs \
-    ros-noetic-snapstack-msgs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# ---------- librealsense runtime (pre-built RSUSB) --------------------------
+# Copy the lib you already built on the host (2.56.1 → /usr/local/lib, /usr/local/include)
+# to avoid a long compile inside the container.
+COPY --from=local/librealsense:latest /usr/local /usr/local
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH \
+    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
-# Installiere opencv-python ohne GUI
-RUN pip3 install --no-cache-dir opencv-python-headless==4.10.*
+# ---------- Python deps -----------------------------------------------------
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        python3-numpy && \
+    rm -rf /var/lib/apt/lists/*
 
-# Arbeitsverzeichnis
-WORKDIR /app
+# ---------- pyrealsense2 wheel ---------------------------------------------
+# Community wheel for Jetson Orin (2.56.1 RSUSB).  If you built one yourself, copy it.
+RUN pip3 install pyrealsense2==2.56.1
 
-# Kopiere VIO-Skript ins Image
-COPY vio_node.py /app/vio_node.py
+# ---------- ROS package -----------------------------------------------------
+WORKDIR /root/rs_node
+COPY rs_pc_node.py .
 
-# Setze Python-Output auf ungepuffert
-ENV PYTHONUNBUFFERED=1
-
-# Starte das Skript
-CMD ["python3", "vio_node.py"]
+# ---------- default entry ---------------------------------------------------
+ENTRYPOINT ["python3", "rs_pc_node.py"]

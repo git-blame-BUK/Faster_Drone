@@ -1,70 +1,64 @@
+
 #!/usr/bin/env python3
-"""
-Lightweight stereo‑depth + IMU EKF VIO for Jetson Nano.
-Publiziert SnapStack‑`State` direkt auf `/state`, wie es FASTER‑Planner
-im UAV‑Modus erwartet (Launch‑Remap `~state -> state`).
+import numpy as np
+import rclpy
+from rclpy.node import Node
 
-Subscribes:
-  * /camera/depth/image_rect_raw  (sensor_msgs/Image, Depth16)
-  * /mavros/imu/data              (sensor_msgs/Imu)
-
-Publishes:
-  * /state                        (snapstack_msgs/State)
-  * /camera/cloud wird vom launch file erwartet ist aber nur simuliert
-  * /hier muss faster_launch bearbeitet werden --> bereits kommentier in faster_launch (realsense_ros published /camera/depth/color/points)
-
-"""
-import rospy, cv2, numpy as np
-from cv_bridge import CvBridge
-from sensor_msgs.msg import Imu, Image
-from snapstack_msgs.msg import State
-from message_filters import ApproximateTimeSynchronizer, Subscriber
-from geometry_msgs.msg import Quaternion, Vector3
-
-bridge = CvBridge()
-KF_P = np.diag([1e-3]*6)      # initial covariance
-KF_Q = np.diag([1e-4]*6)      # process noise
-KF_R = np.diag([1e-2]*6)      # measurement noise
-
-state = np.zeros(6)           # x,y,z, roll,pitch,yaw
-P = KF_P.copy()
+from sensor_msgs.msg import PointCloud2, PointField
+import sensor_msgs_py.point_cloud2 as pc2
+import pyrealsense2 as rs
 
 
-def sync_cb(depth_img_msg, imu_msg):
-    global state, P
-    depth_img = bridge.imgmsg_to_cv2(depth_img_msg).astype(np.float32) / 1000.0
-    z = np.nanmean(depth_img)
-    if np.isnan(z):
-        return
-    z_meas = np.array([0, 0, z, 0, 0, 0])
+class RSPointCloud(Node):
+    def __init__(self):
+        super().__init__("rs_pointcloud")
+        self.pub = self.create_publisher(PointCloud2, "camera/points", 10)
 
-    dt = 1.0 / 30.0
-    ax = imu_msg.linear_acceleration
-    state[:3] += np.array([0, 0, -ax.z]) * 0.5 * dt**2
-    P += KF_Q
+        # RealSense pipeline --------------------------------------------------
+        cfg = rs.config()
+        cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        cfg.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 30)
 
-    # Kalman update
-    y = z_meas - state
-    S = P + KF_R
-    K = P @ np.linalg.inv(S)
-    state += K @ y
-    P = (np.eye(6) - K) @ P
+        self.pipe  = rs.pipeline()
+        self.pc    = rs.pointcloud()           # C++ point-cloud object
+        self.align = rs.align(rs.stream.color) # keep depth & RGB registered
+        self.pipe.start(cfg)
 
-    # Build State message
-    st = State()
-    st.header = depth_img_msg.header
-    st.pos = Vector3(*state[:3])
-    st.vel = Vector3()                # unknown → 0
-    st.acc = Vector3()
-    st.att = Quaternion(w=1.0)        # simple orientation stub
-    pub.publish(st)
+        # 30 Hz timer
+        self.timer = self.create_timer(1.0/30, self.loop)
 
-rospy.init_node("light_vio_state")
-sub_depth = Subscriber("/camera/depth/image_rect_raw", Image)
-sub_imu   = Subscriber("/mavros/imu/data", Imu)
-ats = ApproximateTimeSynchronizer([sub_depth, sub_imu], queue_size=20, slop=0.03)
-ats.registerCallback(sync_cb)
+    # ------------------------------------------------------------------------
+    def loop(self):
+        frames = self.align.process(self.pipe.wait_for_frames())
+        depth  = frames.get_depth_frame()
+        color  = frames.get_color_frame()
+        if not depth:              # camera warming up
+            return
 
-pub = rospy.Publisher("/state", State, queue_size=5)
-rospy.loginfo("Lightweight VIO node for FASTER UAV‑mode started.")
-rospy.spin()
+        # GPU/ISA: depth → XYZ -----------------------------------------------
+        points = self.pc.calculate(depth)    # runs in C++
+        self.pc.map_to(color)
+
+        # C-array views – zero copy                                           
+        verts = np.asanyarray(points.get_vertices(), dtype=np.float32)\
+                  .reshape(-1, 3)        # (N,3) xyz
+        rgb   = np.asanyarray(color.get_data(),   dtype=np.uint8)\
+                  .reshape(-1, 3)         # (H*W,3) BGR
+
+        stamp = self.get_clock().now().to_msg()
+        cloud = pc2.create_cloud_xyzrgb(
+            header=pc2.Header(stamp=stamp, frame_id="camera_link"),
+            xyz=verts,
+            rgb=rgb
+        )
+        self.pub.publish(cloud)
+
+
+def main():
+    rclpy.init()
+    RSPointCloud()
+    rclpy.spin(RSPointCloud())     # never returns
+
+
+if __name__ == "__main__":
+    main()
