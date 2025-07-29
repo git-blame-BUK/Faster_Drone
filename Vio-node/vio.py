@@ -56,8 +56,15 @@ class RSPointCloud(Node):
 
 def main():
     rclpy.init()
-    RSPointCloud()
-    rclpy.spin(RSPointCloud())     # never returns
+    node = RSPointCloud()
+    try:
+        rclpy.spin(RSPointCloud())  
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+        node.pipe.stop()
 
 
 if __name__ == "__main__":
