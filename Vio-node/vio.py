@@ -58,7 +58,7 @@ def main():
     rclpy.init()
     node = RSPointCloud()
     try:
-        rclpy.spin(node())  
+        rclpy.spin(node)  
     except KeyboardInterrupt:
         pass
     finally:
