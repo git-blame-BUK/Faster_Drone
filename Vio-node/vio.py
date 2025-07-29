@@ -11,7 +11,12 @@ import struct
 class RSPointCloud(Node):
     def __init__(self):
         super().__init__('rs_pointcloud')
-        self.publisher_ = self.create_publisher(PointCloud2, 'camera/points', 10)
+       # Empfohlenes QoS-Profil für Sensor-Daten (RELIABLE + depth=10)
+        qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            depth=10
+        )      
+        self.publisher_ = self.create_publisher(PointCloud2, 'camera/points', qos)
 
         # RealSense Pipeline Setup
         self.pipe = rs.pipeline()
@@ -25,7 +30,7 @@ class RSPointCloud(Node):
         self.pipe.start(cfg)
         self.get_logger().info("RealSense pipeline started")
 
-        self.timer = self.create_timer(1.0 / 6.0, self.loop)
+        self.timer = self.create_timer(1.0 / 15.0, self.loop)
 
     def loop(self):
         frames = self.align.process(self.pipe.wait_for_frames())
