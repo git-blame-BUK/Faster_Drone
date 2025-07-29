@@ -1,4 +1,8 @@
 
+# ---------- stage 1: tiny image mit deinen libs ----------------------------
+FROM scratch AS librealsense
+COPY /usr/local /usr/local          # <-- Pfad auf dem Host (build-context)
+
 # ---------- base ------------------------------------------------------------
 FROM nvcr.io/nvidia/l4t-ros:r36.4.0-humble-desktop   
 # JetPack 6 – includes ROS 2 Humble +
