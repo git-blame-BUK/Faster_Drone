@@ -23,8 +23,8 @@ class RSPointCloud(Node):
         # RealSense Pipeline Setup
         self.pipe = rs.pipeline()
         cfg = rs.config()
-        cfg.enable_stream(rs.stream.depth, 424, 240, rs.format.z16, 6)
-        cfg.enable_stream(rs.stream.color, 424, 240, rs.format.rgb8, 6)
+        cfg.enable_stream(rs.stream.depth, 424, 240, rs.format.z16, 15)
+        cfg.enable_stream(rs.stream.color, 424, 240, rs.format.rgb8, 15)
 
         self.align = rs.align(rs.stream.color)
         self.pc = rs.pointcloud()
