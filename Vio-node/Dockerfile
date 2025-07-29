@@ -1,7 +1,8 @@
 
 # ---------- base ------------------------------------------------------------
-FROM nvcr.io/nvidia/l4t-ros:r36.2.0-humble-desktop   # JetPack 6 – includes ROS 2 Humble +
-                                                     # CUDA + rclpy
+FROM nvcr.io/nvidia/l4t-ros:r36.4.0-humble-desktop   
+# JetPack 6 – includes ROS 2 Humble +
+# CUDA + rclpyA
 
 # ---------- librealsense runtime (pre-built RSUSB) --------------------------
 # Copy the lib you already built on the host (2.56.1 → /usr/local/lib, /usr/local/include)
