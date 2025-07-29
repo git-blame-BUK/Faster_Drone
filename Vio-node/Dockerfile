@@ -27,6 +27,6 @@ RUN apt-get update && \
 
 # copy your script
 WORKDIR /root/rs_node
-COPY rs_pc_node.py .
+COPY vio.py .
 
-ENTRYPOINT ["python3", "rs_pc_node.py"]
+ENTRYPOINT ["python3", "vio.py"]
