@@ -39,8 +39,9 @@ class RSPointCloud(Node):
         self.pc.map_to(color)
         points = self.pc.calculate(depth)
 
-        # xyz
-        verts = np.asarray(points.get_vertices(), dtype=np.float32).view(np.float32).reshape(-1, 3)
+        # xyz        
+        verts_struct = np.asarray(points.get_vertices())
+        verts = np.vstack([verts_struct['f0'], verts_struct['f1'], verts_struct['f2']]).T.astype(np.float32)
 
         # rgb as packed float
         rgb_img = np.asarray(color.get_data(), dtype=np.uint8).reshape(-1, 3)
