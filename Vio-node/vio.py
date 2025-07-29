@@ -43,8 +43,8 @@ class RSPointCloud(Node):
         self.pc.map_to(color)
 
         # C-array views – zero copy                                           
-        verts = np.asanyarray(points.get_vertices(), dtype=np.float32)\
-                  .reshape(-1, 3)        # (N,3) xyz
+        
+        verts = np.asanyarray(points.get_vertices()).view(np.float32).reshape(-1, 3)
         rgb   = np.asanyarray(color.get_data(),   dtype=np.uint8)\
                   .reshape(-1, 3)         # (H*W,3) BGR
 
