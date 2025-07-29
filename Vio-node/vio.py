@@ -3,6 +3,7 @@
 import numpy as np
 import rclpy
 from rclpy.node import Node
+import time
 
 from sensor_msgs.msg import PointCloud2, PointField
 import sensor_msgs_py.point_cloud2 as pc2
@@ -23,7 +24,9 @@ class RSPointCloud(Node):
         self.pc    = rs.pointcloud()           # C++ point-cloud object
         self.align = rs.align(rs.stream.color) # keep depth & RGB registered
         self.pipe.start(cfg)
-
+        self.get_logger().info("RealSense pipeline started")
+        # Wait for the camera to warm up
+        time.sleep(2)
         # 30 Hz timer
         self.timer = self.create_timer(1.0/30, self.loop)
 
