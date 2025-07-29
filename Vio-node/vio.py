@@ -34,6 +34,7 @@ class RSPointCloud(Node):
         self.timer = self.create_timer(1.0 / 15.0, self.loop)
 
     def loop(self):
+        t0 = time.time() # time  debug
         frames = self.align.process(self.pipe.wait_for_frames())
         depth = frames.get_depth_frame()
         color = frames.get_color_frame()
@@ -70,6 +71,8 @@ class RSPointCloud(Node):
         header.frame_id = "map"  # <– wichtig für RViz
 
         msg = pc2.create_cloud(header, fields, cloud_data)
+        t1 = time.time()
+        self.get_logger().info(f"Loop took {t1 - t0:.3f} s")
         self.get_logger().info(f"Publishing frame at {self.get_clock().now().nanoseconds}") # log time  debugger
         self.publisher_.publish(msg)
 
