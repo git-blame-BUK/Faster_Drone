@@ -70,6 +70,7 @@ class RSPointCloud(Node):
         header.frame_id = "map"  # <– wichtig für RViz
 
         msg = pc2.create_cloud(header, fields, cloud_data)
+        self.get_logger().info(f"Publishing frame at {self.get_clock().now().nanoseconds}") # log time  debugger
         self.publisher_.publish(msg)
 
 def main():
