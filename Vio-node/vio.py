@@ -14,8 +14,8 @@ class RSPointCloud(Node):
         super().__init__('rs_pointcloud')
        # Empfohlenes QoS-Profil für Sensor-Daten (RELIABLE + depth=10)
         qos = QoSProfile(
-            reliability=QoSReliabilityPolicy.RELIABLE,
-            depth=10
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            depth=1
         )      
         self.publisher_ = self.create_publisher(PointCloud2, 'camera/points', qos)
 
