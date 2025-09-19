@@ -9,5 +9,4 @@ This is a Project to explore the possibilities of state of the art Autonomous Na
 
 ## Dataflow
 
-IMU + DepthCamera --> State Estimation (Vio)
-State + Pointcloud --> Pathfinding
+IMU + DepthCamera --> State Estimation (Vio) + Pointcloud --> Pathfinding
