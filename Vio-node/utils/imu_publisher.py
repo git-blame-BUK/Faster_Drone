@@ -15,8 +15,7 @@ class PixhawkImuNode(Node):
         super().__init__('pixhawk_imu_node')
 
         # --- Parameter ---
-        self.port = self.declare_parameter('port', '/dev/ttyTHS1').get_parameter_value().string_value
-        self.baud = self.declare_parameter('baud', 921600).get_parameter_value().integer_value
+        self.conn = self.declare_parameter('mavlink_url', 'udpin:0.0.0.0:146000').get_parameter_value().string_value 
         self.frame_id = self.declare_parameter('frame_id', 'imu_link').get_parameter_value().string_value
         # sinnvoller Startwert: +4 ms (Jetson Empfangszeit leicht nach vorn schieben)
         self.offset_sec = float(self.declare_parameter('imu_time_offset', 0.004).get_parameter_value().double_value)
@@ -25,8 +24,8 @@ class PixhawkImuNode(Node):
         self.pub = self.create_publisher(Imu, '/imu0', qos_profile_sensor_data)
 
         # --- MAVLink verbinden ---
-        self.mav = mavutil.mavlink_connection(self.port, baud=self.baud)
-        self.get_logger().info(f'Pixhawk via MAVLink: {self.port} @ {self.baud}')
+        self.mav = mavutil.mavlink_connection(self.conn)
+        # self.get_logger().info(f'Pixhawk via MAVLink: {self.port} @ {self.baud}')
 
         # Optional: Datenstrom anfragen (manche FC senden eh automatisch)
         try:
