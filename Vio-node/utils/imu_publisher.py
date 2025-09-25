@@ -15,7 +15,7 @@ class PixhawkImuNode(Node):
         super().__init__('pixhawk_imu_node')
 
         # --- Parameter ---
-        self.port = self.declare_parameter('port', '/dev/ttyACM0').get_parameter_value().string_value
+        self.port = self.declare_parameter('port', '/dev/ttyTHS1').get_parameter_value().string_value
         self.baud = self.declare_parameter('baud', 921600).get_parameter_value().integer_value
         self.frame_id = self.declare_parameter('frame_id', 'imu_link').get_parameter_value().string_value
         # sinnvoller Startwert: +4 ms (Jetson Empfangszeit leicht nach vorn schieben)
