@@ -43,8 +43,8 @@ class PixhawkImuNode(Node):
         self.timer = self.create_timer(0.0, self.poll)
 
         # Simple Covariances (später kalibrieren/anpassen)
-        self.gyro_cov = [0.0005,0,0, 0,0.0005,0, 0,0,0.0005]
-        self.acc_cov  = [0.02,0,0,    0,0.02,0,    0,0,0.02]
+        self.gyro_cov = [0.0005,0.0,0.0, 0.0,0.0005,0.0, 0.0,0.0,0.0005]
+        self.acc_cov  = [0.02,0.0,0.0,    0.0,0.02,0.0,    0.0,0.0,0.02]
 
     def poll(self):
         # Bevorzugt HIGHRES_IMU, fällt ggf. auf SCALED_IMU2/3 zurück
