@@ -1,8 +1,8 @@
 # How to Vio ?
-Python Publisher to implement into OpenVINS 
-VIO: Visual Inertial Odometry --> Pose Estimation
-ROS: Robot Operaing System
-Faster-PLanner: simplified Fast Planner for minimal SLAM(SimultaniousLocalizationAndMapping) like functions with trajectory goal
+- Python Publisher to implement into OpenVINS 
+- VIO: Visual Inertial Odometry --> Pose Estimation
+- ROS: Robot Operaing System
+- Faster-PLanner: simplified Fast Planner for minimal SLAM(SimultaniousLocalizationAndMapping) like functions with trajectory goal
 
 # utils
 
