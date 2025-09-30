@@ -38,12 +38,11 @@ class PixhawkImuNode(Node):
 
             # bevorzugte Nachrichten explizit anfordern
             for mid in (
-                mavutil.mavlink.MAVLINK_MSG_ID_HIGHRES_IMU,
                 mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU,
                 mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU2,
                 mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU3,
             ):
-                set_rate(mid, 200)
+                set_rate(mid, 0)
         request_rates()
         self.create_timer(2.0, request_rates)
         # Timer: so schnell wie möglich pollen
