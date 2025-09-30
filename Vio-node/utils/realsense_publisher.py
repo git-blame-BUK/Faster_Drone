@@ -80,7 +80,7 @@ class RealSenseStereoNode(Node):
         self.use_device_time = bool(self.get_parameter('use_device_time').value)
 
         qos = QoSProfile(
-            reliability=ReliabilityPolicy.RELIABLE,
+                reliability=ReliabilityPolicy.BEST_EFFORT,
             history=HistoryPolicy.KEEP_LAST,
             depth=5
         )
