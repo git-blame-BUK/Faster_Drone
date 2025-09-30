@@ -45,7 +45,7 @@ def main():
         with open(outdir/"cam0.yaml","w") as f: yaml.safe_dump(to_yaml_from_intrinsics(i0), f, sort_keys=False)
         with open(outdir/"cam1.yaml","w") as f: yaml.safe_dump(to_yaml_from_intrinsics(i1), f, sort_keys=False)
 
-        e01 = rs.get_extrinsics(p0, p1)  # cam0 -> cam1
+        e01 = p0.get_extrinsics_to(p1)  # cam0 -> cam1
         R = [[float(e01.rotation[r*3+c]) for c in range(3)] for r in range(3)]
         t = [float(e01.translation[0]), float(e01.translation[1]), float(e01.translation[2])]
         baseline = (t[0]**2 + t[1]**2 + t[2]**2) ** 0.5
