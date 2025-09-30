@@ -25,7 +25,7 @@ class PixhawkImuNode(Node):
 
         # --- MAVLink verbinden ---
         self.mav = mavutil.mavlink_connection(self.conn)
-        self.get_logger().info(f'Pixhawk via MAVLink: {self.port} @ {self.baud}')
+        # self.get_logger().info(f'Pixhawk via MAVLink: {self.port} @ {self.baud}')
         # Frequenz einfordern 
         def set_rate(msg_id, hz):
             usec = int(1e6/float(hz))
