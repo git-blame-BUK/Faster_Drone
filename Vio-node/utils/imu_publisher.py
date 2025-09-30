@@ -33,7 +33,7 @@ class PixhawkImuNode(Node):
         # Frequenz einfordern 
         def request_rates():
             def set_rate(msg_id, hz):
-                usec = int(1e6/float(hz))
+                usec = 0 if hz <= 0 else int(1e6/float(hz)) 
                 self.mav.mav.command_long_send(
                     self.mav.target_system, self.mav.target_component,
                     mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL, 0,
