@@ -25,21 +25,27 @@ class PixhawkImuNode(Node):
 
         # --- MAVLink verbinden ---
         self.mav = mavutil.mavlink_connection(self.conn)
+        self.mav.wait_heartbeat()
         # self.get_logger().info(f'Pixhawk via MAVLink: {self.port} @ {self.baud}')
         # Frequenz einfordern 
-        def set_rate(msg_id, hz):
-            usec = int(1e6/float(hz))
-            self.mav.mav.command_long_send(
-                self.mav.target_system, self.mav.target_component,
-                mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL, 0,
-                msg_id, usec, 0,0,0,0,0)
+        def request_rates():
+            def set_rate(msg_id, hz):
+                usec = int(1e6/float(hz))
+                self.mav.mav.command_long_send(
+                    self.mav.target_system, self.mav.target_component,
+                    mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL, 0,
+                    msg_id, usec, 0,0,0,0,0)
 
-        # bevorzugte Nachrichten explizit anfordern
-        set_rate(mavutil.mavlink.MAVLINK_MSG_ID_HIGHRES_IMU, 200)
-        set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU,  200)
-        set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU2, 200)
-        set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU3, 200)
-
+            # bevorzugte Nachrichten explizit anfordern
+            for mid in (
+                set_rate(mavutil.mavlink.MAVLINK_MSG_ID_HIGHRES_IMU, 200)
+                set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU,  200)
+                set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU2, 200)
+                set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU3, 200)
+            ):
+                set_rate(mid, 200)
+        request_rates()
+        self.create_timer(2.0, request_rates)
         # Timer: so schnell wie möglich pollen
         self.timer = self.create_timer(0.0, self.poll)
 
