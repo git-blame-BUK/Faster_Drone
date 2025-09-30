@@ -19,7 +19,10 @@ class PixhawkImuNode(Node):
         self.frame_id = self.declare_parameter('frame_id', 'imu_link').get_parameter_value().string_value
         # sinnvoller Startwert: +4 ms (Jetson Empfangszeit leicht nach vorn schieben)
         self.offset_sec = float(self.declare_parameter('imu_time_offset', 0.004).get_parameter_value().double_value)
-
+        # Max. Veröffentlichungsrate (lokale Drossel), parametrisierbar:
+        self.max_pub_hz = float(self.declare_parameter('max_pub_hz', 200.0).get_parameter_value().double_value)
+        self._min_dt = 1.0 / self.max_pub_hz
+        self._last_pub = 0.0
         # --- Publisher ---
         self.pub = self.create_publisher(Imu, '/imu0', qos_profile_sensor_data)
 
@@ -35,7 +38,7 @@ class PixhawkImuNode(Node):
                     self.mav.target_system, self.mav.target_component,
                     mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL, 0,
                     msg_id, usec, 0,0,0,0,0)
-
+            set_rate(mavutil.mavlink.MAVLINK_MSG_ID_HIGHRES_IMU, 200)
             # bevorzugte Nachrichten explizit anfordern
             for mid in (
                 mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU,
@@ -54,10 +57,15 @@ class PixhawkImuNode(Node):
 
     def poll(self):
         # Bevorzugt HIGHRES_IMU, fällt ggf. auf SCALED_IMU2/3 zurück
-        msg = self.mav.recv_match(type=['HIGHRES_IMU','SCALED_IMU2','SCALED_IMU','SCALED_IMU3'], blocking=False)
+        msg = self.mav.recv_match(type=['HIGHRES_IMU'], blocking=False)
         if not msg:
             return
-
+        # frequenz auf 200hz drosseln 
+        now = self.get_clock().now().nanoseconds / 1e9
+        if self._last_pub and (now - self._last_pub) < self._min_dt:  # <<<
+            return    
+        self._last_pub = now
+        
         imu = Imu()
         # Zeitstempel: Systemzeit + konfigurierter Offset
         t = self.get_clock().now() + Duration(seconds=self.offset_sec)
