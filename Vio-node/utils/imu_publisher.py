@@ -38,10 +38,10 @@ class PixhawkImuNode(Node):
 
             # bevorzugte Nachrichten explizit anfordern
             for mid in (
-                set_rate(mavutil.mavlink.MAVLINK_MSG_ID_HIGHRES_IMU, 200)
-                set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU,  200)
-                set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU2, 200)
-                set_rate(mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU3, 200)
+                mavutil.mavlink.MAVLINK_MSG_ID_HIGHRES_IMU,
+                mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU,
+                mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU2,
+                mavutil.mavlink.MAVLINK_MSG_ID_SCALED_IMU3,
             ):
                 set_rate(mid, 200)
         request_rates()
