@@ -18,7 +18,7 @@ class PixhawkImuNode(Node):
         self.conn = self.declare_parameter('mavlink_url', 'udpin:0.0.0.0:14600').get_parameter_value().string_value 
         self.frame_id = self.declare_parameter('frame_id', 'imu_link').get_parameter_value().string_value
         # sinnvoller Startwert: +4 ms (Jetson Empfangszeit leicht nach vorn schieben)
-        self.offset_sec = float(self.declare_parameter('imu_time_offset', 0.004).get_parameter_value().double_value)
+        self.offset_sec = float(self.declare_parameter('imu_time_offset', 0.0).get_parameter_value().double_value)
         # Max. Veröffentlichungsrate (lokale Drossel), parametrisierbar:
         self.max_pub_hz = float(self.declare_parameter('max_pub_hz', 200.0).get_parameter_value().double_value)
         self._min_dt = 1.0 / self.max_pub_hz

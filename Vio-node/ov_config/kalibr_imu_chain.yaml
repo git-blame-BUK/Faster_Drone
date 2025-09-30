@@ -1,0 +1,8 @@
+
+imu0:
+  rostopic: /imu0
+  update_rate: 120             # deine ~120 Hz
+  accelerometer_noise_density: 0.02     # m/s^2/√Hz (Startwert)
+  accelerometer_random_walk: 0.0002     # m/s^2/√Hz * √s
+  gyroscope_noise_density: 0.002        # rad/s/√Hz
+  gyroscope_random_walk: 0.0002         # rad/s/√Hz * √s

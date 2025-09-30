@@ -1,0 +1,22 @@
+
+use_stereo: true
+
+imu_topic: /imu0
+cam0_topic: /cam0/image_raw
+cam1_topic: /cam1/image_raw
+
+state_options:
+  do_calib_camera_pose: true          # Extrinsics online
+  do_calib_camera_timeoffset: true    # Zeitversatz online
+  do_calib_camera_intrinsics: false   # Intrinsics fix
+  do_calib_imu_intrinsics: false      # meist aus
+
+vio_options:
+  gravity_mag: 9.81
+  max_cameras: 2
+
+track_options:
+  max_features: 250
+  grid_x: 8
+  grid_y: 6
+  fast_threshold: 10
