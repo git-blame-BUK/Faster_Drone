@@ -14,49 +14,7 @@ from cv_bridge import CvBridge
 import yaml
 from pathlib import Path
 
-def load_caminfo(yaml_path: str, frame_id: str, width: int, height: int) -> CameraInfo:
-    """Lädt CameraInfo aus Kalibrierungs-YAML (Kalibr/ov Format kompatibel) oder erstellt Dummy."""
-    msg = CameraInfo()
-    msg.width = width
-    msg.height = height
-    msg.distortion_model = 'plumb_bob'
-    msg.header.frame_id = frame_id
 
-    if yaml_path and Path(yaml_path).is_file():
-        with open(yaml_path, 'r') as f:
-            data = yaml.safe_load(f)
-
-        # Versuche gängige Schlüssel (Kalibr/OpenVINS/ROS)
-        K = None; D = None
-        if 'K' in data:                      # Kalibr/ROS
-            K = np.array(data['K']).reshape(3, 3)
-        elif 'intrinsics' in data:           # OpenVINS yaml: intrinsics: [fx, fy, cx, cy]
-            fx, fy, cx, cy = data['intrinsics']
-            K = np.array([[fx, 0, cx],
-                          [0, fy, cy],
-                          [0,  0,  1]])
-        if 'D' in data:
-            D = np.array(data['D']).ravel().tolist()
-        elif 'distortion_coeffs' in data:
-            D = list(data['distortion_coeffs'])
-        else:
-            D = [0.0, 0.0, 0.0, 0.0, 0.0]
-
-        msg.k = K.flatten().tolist() if K is not None else [0.0]*9
-        msg.d = D
-        # R/P no rect is done by OpenVINS 
-        msg.r = [1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0]
-        msg.p = [msg.k[0], 0.0, msg.k[2], 0.0,
-                 0.0, msg.k[4], msg.k[5], 0.0,
-                 0.0, 0.0, 1.0, 0.0]
-    else:
-        # Dummy yaml
-        msg.k = [0.0]*9
-        msg.d = [0.0]*5
-        msg.r = [1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0
-        ]
-        msg.p = [0.0]*12
-    return msg
 
 class RealSenseStereoNode(Node):
     def __init__(self):
@@ -92,8 +50,6 @@ class RealSenseStereoNode(Node):
         self.pub_ci1  = self.create_publisher(CameraInfo, '/cam1/camera_info', qos)
 
         self.bridge = CvBridge()
-        self.ci0 = load_caminfo(self.cam0_yaml, 'cam0', self.width, self.height)
-        self.ci1 = load_caminfo(self.cam1_yaml, 'cam1', self.width, self.height)
 
         # RealSense Pipeline
         cfg = rs.config()
