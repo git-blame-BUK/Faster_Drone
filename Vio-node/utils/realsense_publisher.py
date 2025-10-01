@@ -11,8 +11,6 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 from cv_bridge import CvBridge
-import yaml
-from pathlib import Path
 
 
 
@@ -46,8 +44,6 @@ class RealSenseStereoNode(Node):
         #Publisher
         self.pub_cam0 = self.create_publisher(Image, '/cam0/image_raw', qos)
         self.pub_cam1 = self.create_publisher(Image, '/cam1/image_raw', qos)
-        self.pub_ci0  = self.create_publisher(CameraInfo, '/cam0/camera_info', qos)
-        self.pub_ci1  = self.create_publisher(CameraInfo, '/cam1/camera_info', qos)
 
         self.bridge = CvBridge()
 
@@ -98,15 +94,9 @@ class RealSenseStereoNode(Node):
         msg0.header = Header(stamp=stamp, frame_id='cam0')
         msg1.header = Header(stamp=stamp, frame_id='cam1')
 
-        # CameraInfo with Timestamp
-        self.ci0.header.stamp = stamp
-        self.ci1.header.stamp = stamp
-
-        # Publish
+                # Publish
         self.pub_cam0.publish(msg0)
         self.pub_cam1.publish(msg1)
-        self.pub_ci0.publish(self.ci0)
-        self.pub_ci1.publish(self.ci1)
 
     def destroy_node(self):
         try:
