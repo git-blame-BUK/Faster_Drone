@@ -25,7 +25,7 @@ class RealSenseStereoNode(Node):
         self.declare_parameter('serial', '')
         self.declare_parameter('cam0_yaml', '')  # Path too cam.yml
         self.declare_parameter('cam1_yaml', '')  
-        self.declare_parameter('use_device_time', True)  # Timestamp from realsense 
+        self.declare_parameter('use_device_time', False)  # Timestamp from realsense 
 
         self.width  = int(self.get_parameter('width').value)
         self.height = int(self.get_parameter('height').value)
